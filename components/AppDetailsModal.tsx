@@ -66,6 +66,72 @@ const DevTabButton: React.FC<{icon: string, label: string, isActive: boolean, on
     </button>
 );
 
+const EditableLinkItem: React.FC<{ icon: string, label: string, value: string | undefined, onUpdate: (value: string) => void, placeholder: string }> = ({ icon, label, value, onUpdate, placeholder }) => {
+    const [currentValue, setCurrentValue] = useState(value || '');
+
+    useEffect(() => {
+        setCurrentValue(value || '');
+    }, [value]);
+
+    const handleBlur = () => {
+        if (currentValue !== value) {
+            onUpdate(currentValue);
+        }
+    };
+
+    return (
+        <div>
+            <dt className="flex items-center gap-2 text-sm font-medium text-gray-400 truncate">
+                <span className="material-icons text-base">{icon}</span>
+                {label}
+            </dt>
+            <dd className="mt-1">
+                <input 
+                    type="url"
+                    value={currentValue}
+                    onChange={(e) => setCurrentValue(e.target.value)}
+                    onBlur={handleBlur}
+                    placeholder={placeholder}
+                    className="w-full bg-gray-100 border-transparent rounded-md px-3 py-2 text-gray-700 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all duration-200"
+                />
+            </dd>
+        </div>
+    );
+};
+
+const EditableTextItem: React.FC<{ icon: string, label: string, value: string | undefined, onUpdate: (value: string) => void, placeholder: string, isCode?: boolean }> = ({ icon, label, value, onUpdate, placeholder, isCode = false }) => {
+    const [currentValue, setCurrentValue] = useState(value || '');
+
+    useEffect(() => {
+        setCurrentValue(value || '');
+    }, [value]);
+
+    const handleBlur = () => {
+        if (currentValue !== value) {
+            onUpdate(currentValue);
+        }
+    };
+
+    return (
+        <div>
+            <dt className="flex items-center gap-2 text-sm font-medium text-gray-400 truncate">
+                <span className="material-icons text-base">{icon}</span>
+                {label}
+            </dt>
+            <dd className="mt-1">
+                <input
+                    type="text"
+                    value={currentValue}
+                    onChange={(e) => setCurrentValue(e.target.value)}
+                    onBlur={handleBlur}
+                    placeholder={placeholder}
+                    className={`w-full bg-gray-100 border-transparent rounded-md px-3 py-2 text-gray-700 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all duration-200 ${isCode ? 'font-mono' : ''}`}
+                />
+            </dd>
+        </div>
+    );
+};
+
 // Stage-specific content component
 const StageSpecificContent: React.FC<{app: App; onUpdateApp: (id: string, data: Partial<App>) => void;}> = ({ app, onUpdateApp }) => {
     
@@ -340,26 +406,42 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
             
              { (app.devStage === DevStage.PLANNING || app.devStage === DevStage.DEVELOPMENT) && (
               <dl className="space-y-4 border-b border-gray-200 pb-6">
-                  <DetailItem
+                  <EditableTextItem
                       icon="folder"
                       label="프로젝트 경로"
                       value={app.path}
+                      onUpdate={(value) => onUpdateApp(app.id, { path: value })}
+                      placeholder="프로젝트 경로"
                       isCode
                   />
-                  <DetailItem
+                  <EditableTextItem
                       icon="terminal"
                       label="실행 명령어"
                       value={app.command}
+                      onUpdate={(value) => onUpdateApp(app.id, { command: value })}
+                      placeholder="실행 명령어"
                       isCode
                   />
-                  <DetailItem
+                  <EditableLinkItem
                       icon="github"
                       label="GitHub 저장소"
-                      value={
-                          app.github ? 
-                          <a href={app.github} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline break-all">{app.github}</a> :
-                          <span className="text-gray-500">설정 안됨</span>
-                      }
+                      value={app.github}
+                      onUpdate={(value) => onUpdateApp(app.id, { github: value })}
+                      placeholder="GitHub 저장소 URL"
+                  />
+                  <EditableLinkItem
+                      icon="auto_awesome"
+                      label="AI Studio 링크"
+                      value={app.aiStudioLink}
+                      onUpdate={(value) => onUpdateApp(app.id, { aiStudioLink: value })}
+                      placeholder="Google AI Studio URL"
+                  />
+                  <EditableLinkItem
+                      icon="chat"
+                      label="ChatGPT 링크"
+                      value={app.chatGptLink}
+                      onUpdate={(value) => onUpdateApp(app.id, { chatGptLink: value })}
+                      placeholder="ChatGPT 프로젝트 URL"
                   />
                   <div>
                       <dt className="flex items-center gap-2 text-sm font-medium text-gray-700">

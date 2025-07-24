@@ -62,6 +62,8 @@ export interface App {
   path: string;
   command: string;
   github: string;
+  aiStudioLink?: string;
+  chatGptLink?: string;
   techStack: string[];
   logs: string[];
   // Stage-specific data
@@ -75,10 +77,15 @@ export interface App {
   bugs?: BugItem[];
 }
 
+export type ShortIdeaStatus = 'Idea' | 'Planning' | 'Scripting' | 'Filming' | 'Editing' | 'Uploaded';
+
 export interface ShortIdea {
   id: string;
   title: string;
   description: string;
-  status: 'Idea' | 'Planning' | 'Scripting' | 'Filming' | 'Editing' | 'Uploaded';
+  status: ShortIdeaStatus;
   createdAt: number;
+  statusNotes?: {
+    [key in ShortIdeaStatus]?: string;
+  };
 }

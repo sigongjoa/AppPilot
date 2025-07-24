@@ -222,6 +222,30 @@ export const AppModal: React.FC<AppModalProps> = ({ isOpen, onClose, onSave, app
               className="w-full bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-gray-800"
             />
           </div>
+          <div>
+            <label htmlFor="aiStudioLink" className="block text-sm font-medium text-gray-700 mb-1">Google AI Studio 주소</label>
+            <input
+              id="aiStudioLink"
+              name="aiStudioLink"
+              type="url"
+              value={appData.aiStudioLink || ''}
+              onChange={handleChange}
+              placeholder="https://aistudio.google.com/..."
+              className="w-full bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-gray-800"
+            />
+          </div>
+          <div>
+            <label htmlFor="chatGptLink" className="block text-sm font-medium text-gray-700 mb-1">ChatGPT 프로젝트 주소</label>
+            <input
+              id="chatGptLink"
+              name="chatGptLink"
+              type="url"
+              value={appData.chatGptLink || ''}
+              onChange={handleChange}
+              placeholder="https://chat.openai.com/..."
+              className="w-full bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-gray-800"
+            />
+          </div>
 
           <details className="group pt-2">
               <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900 list-none flex items-center justify-between">

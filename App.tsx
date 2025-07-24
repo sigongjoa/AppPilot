@@ -18,6 +18,8 @@ const initialApps: App[] = [
     path: '/apps/ai-doc-writer',
     command: 'npm run start',
     github: 'https://github.com/example/ai-doc-writer',
+    aiStudioLink: 'https://aistudio.google.com/apps/drive/1ESaIByI9MwRmg4U7NpKNkrrVkis93yFD',
+    chatGptLink: 'https://chat.openai.com/c/12345678-90ab-cdef-1234-567890abcdef',
     techStack: ['React', 'Gemini API', 'TypeScript', 'TailwindCSS', 'Vite'],
     logs: [
       '정보: 개발 서버 시작 중...',
