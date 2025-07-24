@@ -8,6 +8,8 @@ on:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write # 이 라인을 추가합니다.
 
     steps:
       - name: Checkout 
