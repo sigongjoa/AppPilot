@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { App, DevStage, DeploymentInfo, TestInfo } from '../types';
-import { suggestAppNames } from '../services/geminiService';
 
 interface AppModalProps {
   isOpen: boolean;
@@ -90,13 +89,14 @@ export const AppModal: React.FC<AppModalProps> = ({ isOpen, onClose, onSave, app
     onSave({ ...appData, techStack: finalTechStack } as App);
   };
 
-  const handleSuggestNames = useCallback(async () => {
-    if (!appData.description) return;
-    setIsSuggesting(true);
-    const suggestions = await suggestAppNames(appData.description);
-    setNameSuggestions(suggestions);
-    setIsSuggesting(false);
-  }, [appData.description]);
+  // Gemini API 관련 코드 제거
+  // const handleSuggestNames = useCallback(async () => {
+  //   if (!appData.description) return;
+  //   setIsSuggesting(true);
+  //   const suggestions = await suggestAppNames(appData.description);
+  //   setNameSuggestions(suggestions);
+  //   setIsSuggesting(false);
+  // }, [appData.description]);
 
   if (!isOpen) return null;
 
@@ -134,7 +134,8 @@ export const AppModal: React.FC<AppModalProps> = ({ isOpen, onClose, onSave, app
                     required
                     className="flex-grow bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:ring-blue-500 focus:border-blue-500"
                 />
-                <button
+                {/* Gemini API 관련 버튼 제거 */}
+                {/* <button
                     type="button"
                     onClick={handleSuggestNames}
                     disabled={!appData.description || isSuggesting}
@@ -142,9 +143,10 @@ export const AppModal: React.FC<AppModalProps> = ({ isOpen, onClose, onSave, app
                 >
                     <span className="material-icons">auto_awesome</span>
                     {isSuggesting ? '...' : '제안'}
-                </button>
+                </button> */}
                 </div>
-                {nameSuggestions.length > 0 && (
+                {/* Gemini API 관련 제안 목록 제거 */}
+                {/* {nameSuggestions.length > 0 && (
                     <div className="mt-2 flex flex-wrap gap-2">
                         {nameSuggestions.map(name => (
                             <button
@@ -157,7 +159,7 @@ export const AppModal: React.FC<AppModalProps> = ({ isOpen, onClose, onSave, app
                             </button>
                         ))}
                     </div>
-                )}
+                )} */}
             </div>
             <div>
                 <label htmlFor="devStage" className="block text-sm font-medium text-gray-700 mb-1">개발 단계</label>
