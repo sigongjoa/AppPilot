@@ -25,9 +25,9 @@ const initialApps: App[] = [
       '이벤트: 사용자가 새 문서를 생성했습니다.'
     ],
     links: [
-      { label: 'GitHub 저장소', url: 'https://github.com/example/ai-doc-writer', icon: 'github' },
-      { label: 'AI Studio 링크', url: 'https://aistudio.google.com/apps/drive/1ESaIByI9MwRmg4U7NpKNkrrVkis93yFD', icon: 'auto_awesome' },
-      { label: 'ChatGPT 링크', url: 'https://chat.openai.com/c/12345678-90ab-cdef-1234-567890abcdef', icon: 'chat' },
+      { label: 'GitHub 저장소', url: 'https://github.com/example/ai-doc-writer', icon: 'github', id: 'link-1' },
+      { label: 'AI Studio 링크', url: 'https://aistudio.google.com/apps/drive/1ESaIByI9MwRmg4U7NpKNkrrVkis93yFD', icon: 'auto_awesome', id: 'link-2' },
+      { label: 'ChatGPT 링크', url: 'https://chat.openai.com/c/12345678-90ab-cdef-1234-567890abcdef', icon: 'chat', id: 'link-3' },
     ],
     todos: [
         { id: 't1-1', text: 'Gemini 응답 스트리밍 구현', completed: true },
@@ -63,7 +63,7 @@ const initialApps: App[] = [
         '성공: Docker 컨테이너가 중지되었습니다.',
     ],
     links: [
-      { label: 'GitHub 저장소', url: 'https://github.com/example/docker-manager', icon: 'github' },
+      { label: 'GitHub 저장소', url: 'https://github.com/example/docker-manager', icon: 'github', id: 'link-4' },
     ],
     metrics: { dbCalls: 1204, apiUsage: 8900 },
     deploymentInfo: {
@@ -91,7 +91,7 @@ const initialApps: App[] = [
     techStack: ['Node.js', 'Imagen 3 API', 'Express'],
     logs: ['정보: 사용자에 의해 서버가 중지되었습니다.'],
     links: [
-      { label: 'GitHub 저장소', url: 'https://github.com/example/imagegen', icon: 'github' },
+      { label: 'GitHub 저장소', url: 'https://github.com/example/imagegen', icon: 'github', id: 'link-5' },
     ],
     ideas: '사용자가 생성한 이미지를 갤러리 형태로 저장하는 기능 추가.\n- 일일 생성 횟수 제한 기능.\n- 워터마크 추가 옵션.'
   },

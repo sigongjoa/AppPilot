@@ -54,6 +54,7 @@ export interface DeploymentInfo {
 }
 
 export interface LinkItem {
+  id: string;
   label: string;
   url: string;
   icon?: string;

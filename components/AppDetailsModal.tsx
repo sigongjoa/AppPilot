@@ -405,7 +405,7 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
   const handleUpdateLink = (updatedLink: LinkItem) => {
     setEditedApp(prev => {
       if (!prev) return null;
-      const updatedLinks = prev.links.map(link => link.url === updatedLink.url ? updatedLink : link);
+      const updatedLinks = prev.links.map(link => link.id === updatedLink.id ? updatedLink : link);
       return { ...prev, links: updatedLinks };
     });
   };
@@ -413,7 +413,7 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
   const handleAddLink = () => {
     setEditedApp(prev => {
       if (!prev) return null;
-      const newLink: LinkItem = { label: '', url: '', icon: 'link' };
+      const newLink: LinkItem = { id: `link-${Date.now()}`, label: '', url: '', icon: 'link' };
       return { ...prev, links: [...prev.links, newLink] };
     });
   };
@@ -421,7 +421,7 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
   const handleDeleteLink = (linkToDelete: LinkItem) => {
     setEditedApp(prev => {
       if (!prev) return null;
-      const updatedLinks = prev.links.filter(link => link.url !== linkToDelete.url);
+      const updatedLinks = prev.links.filter(link => link.id !== linkToDelete.id);
       return { ...prev, links: updatedLinks };
     });
   };
@@ -493,9 +493,9 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
                               isCode
                           />
                           <Section title="링크" icon="link">
-                            {editedApp.links.map((link, index) => (
+                            {editedApp.links.map((link) => (
                                 <EditableLinkItem
-                                    key={index}
+                                    key={link.id}
                                     link={link}
                                     onUpdate={handleUpdateLink}
                                     onDelete={() => handleDeleteLink(link)}
@@ -511,8 +511,8 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
                           <DetailItem icon="folder" label="프로젝트 경로" value={editedApp.path} isCode />
                           <DetailItem icon="terminal" label="실행 명령어" value={editedApp.command} isCode />
                           <Section title="링크" icon="link">
-                            {editedApp.links.map((link, index) => (
-                                <DetailItem key={index} icon={link.icon || 'link'} label={link.label} value={<a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{link.url}</a>} />
+                            {editedApp.links.map((link) => (
+                                <DetailItem key={link.id} icon={link.icon || 'link'} label={link.label} value={<a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{link.url}</a>} />
                             ))}
                           </Section>
                       </>
