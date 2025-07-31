@@ -53,6 +53,12 @@ export interface DeploymentInfo {
   releaseNotes?: string;
 }
 
+export interface LinkItem {
+  label: string;
+  url: string;
+  icon?: string;
+}
+
 export interface App {
   id: string;
   name: string;
@@ -61,11 +67,9 @@ export interface App {
   devStage: DevStage;
   path: string;
   command: string;
-  github: string;
-  aiStudioLink?: string;
-  chatGptLink?: string;
   techStack: string[];
   logs: string[];
+  links: LinkItem[];
   // Stage-specific data
   ideas?: string;
   todos?: TodoItem[];

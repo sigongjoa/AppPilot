@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { App, AppStatus, DevStage, TodoItem, Metrics, DeploymentInfo, BlockerItem, BugItem, TestInfo } from '../types';
+import { App, AppStatus, DevStage, TodoItem, Metrics, DeploymentInfo, BlockerItem, BugItem, TestInfo, LinkItem } from '../types';
 
 interface AppDetailsModalProps {
   isOpen: boolean;
@@ -66,38 +66,7 @@ const DevTabButton: React.FC<{icon: string, label: string, isActive: boolean, on
     </button>
 );
 
-const EditableLinkItem: React.FC<{ icon: string, label: string, value: string | undefined, onUpdate: (value: string) => void, placeholder: string }> = ({ icon, label, value, onUpdate, placeholder }) => {
-    const [currentValue, setCurrentValue] = useState(value || '');
 
-    useEffect(() => {
-        setCurrentValue(value || '');
-    }, [value]);
-
-    const handleBlur = () => {
-        if (currentValue !== value) {
-            onUpdate(currentValue);
-        }
-    };
-
-    return (
-        <div>
-            <dt className="flex items-center gap-2 text-sm font-medium text-gray-400 truncate">
-                <span className="material-icons text-base">{icon}</span>
-                {label}
-            </dt>
-            <dd className="mt-1">
-                <input 
-                    type="url"
-                    value={currentValue}
-                    onChange={(e) => setCurrentValue(e.target.value)}
-                    onBlur={handleBlur}
-                    placeholder={placeholder}
-                    className="w-full bg-gray-100 border-transparent rounded-md px-3 py-2 text-gray-700 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all duration-200"
-                />
-            </dd>
-        </div>
-    );
-};
 
 const EditableTextItem: React.FC<{ icon: string, label: string, value: string | undefined, onUpdate: (value: string) => void, placeholder: string, isCode?: boolean }> = ({ icon, label, value, onUpdate, placeholder, isCode = false }) => {
     const [currentValue, setCurrentValue] = useState(value || '');
@@ -128,6 +97,46 @@ const EditableTextItem: React.FC<{ icon: string, label: string, value: string | 
                     className={`w-full bg-gray-100 border-transparent rounded-md px-3 py-2 text-gray-700 focus:ring-blue-500 focus:border-blue-500 focus:bg-white transition-all duration-200 ${isCode ? 'font-mono' : ''}`}
                 />
             </dd>
+        </div>
+    );
+};
+
+const EditableLinkItem: React.FC<{ link: LinkItem, onUpdate: (link: LinkItem) => void, onDelete: () => void }> = ({ link, onUpdate, onDelete }) => {
+    const [currentLabel, setCurrentLabel] = useState(link.label);
+    const [currentUrl, setCurrentUrl] = useState(link.url);
+
+    useEffect(() => {
+        setCurrentLabel(link.label);
+        setCurrentUrl(link.url);
+    }, [link]);
+
+    const handleBlur = () => {
+        if (currentLabel !== link.label || currentUrl !== link.url) {
+            onUpdate({ ...link, label: currentLabel, url: currentUrl });
+        }
+    };
+
+    return (
+        <div className="flex items-center gap-2 bg-gray-100 p-2 rounded-md">
+            <input
+                type="text"
+                value={currentLabel}
+                onChange={(e) => setCurrentLabel(e.target.value)}
+                onBlur={handleBlur}
+                placeholder="링크 레이블"
+                className="flex-1 bg-white border border-gray-300 rounded-md px-2 py-1 text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <input
+                type="url"
+                value={currentUrl}
+                onChange={(e) => setCurrentUrl(e.target.value)}
+                onBlur={handleBlur}
+                placeholder="URL"
+                className="flex-2 bg-white border border-gray-300 rounded-md px-2 py-1 text-gray-700 focus:ring-blue-500 focus:border-blue-500"
+            />
+            <button onClick={onDelete} className="p-1 text-red-500 hover:text-red-700">
+                <span className="material-icons text-lg">delete</span>
+            </button>
         </div>
     );
 };
@@ -362,10 +371,59 @@ const StageSpecificContent: React.FC<{app: App; onUpdateApp: (id: string, data: 
 
 
 export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClose, app, onUpdateApp }) => {
-  if (!isOpen || !app) return null;
+  const [isEditing, setIsEditing] = useState(false);
+  const [editedApp, setEditedApp] = useState<App | null>(null);
+
+  useEffect(() => {
+    if (app) {
+      setEditedApp(app);
+    }
+  }, [app]);
+
+  if (!isOpen || !editedApp) return null;
   
   const handleStageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-      onUpdateApp(app.id, { devStage: e.target.value as DevStage });
+      setEditedApp(prev => prev ? { ...prev, devStage: e.target.value as DevStage } : null);
+  };
+
+  const handleSave = () => {
+    if (editedApp) {
+      onUpdateApp(editedApp.id, editedApp);
+      setIsEditing(false);
+    }
+  };
+
+  const handleCancel = () => {
+    setEditedApp(app); // Revert to original app data
+    setIsEditing(false);
+  };
+
+  const handleUpdateEditedApp = (field: keyof App, value: any) => {
+    setEditedApp(prev => prev ? { ...prev, [field]: value } : null);
+  };
+
+  const handleUpdateLink = (updatedLink: LinkItem) => {
+    setEditedApp(prev => {
+      if (!prev) return null;
+      const updatedLinks = prev.links.map(link => link.url === updatedLink.url ? updatedLink : link);
+      return { ...prev, links: updatedLinks };
+    });
+  };
+
+  const handleAddLink = () => {
+    setEditedApp(prev => {
+      if (!prev) return null;
+      const newLink: LinkItem = { label: '', url: '', icon: 'link' };
+      return { ...prev, links: [...prev.links, newLink] };
+    });
+  };
+
+  const handleDeleteLink = (linkToDelete: LinkItem) => {
+    setEditedApp(prev => {
+      if (!prev) return null;
+      const updatedLinks = prev.links.filter(link => link.url !== linkToDelete.url);
+      return { ...prev, links: updatedLinks };
+    });
   };
 
   return (
@@ -374,24 +432,34 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
         {/* Header */}
         <div className="flex items-start justify-between p-5 border-b border-gray-200">
             <div>
-                <h2 className="text-2xl font-bold text-gray-900">{app.name}</h2>
-                <p className="text-gray-600 mt-1">{app.description}</p>
+                <h2 className="text-2xl font-bold text-gray-900">{editedApp.name}</h2>
+                <p className="text-gray-600 mt-1">{editedApp.description}</p>
             </div>
-          <button onClick={onClose} className="p-1 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-800">
-            <span className="material-icons">close</span>
-          </button>
+            <div className="flex items-center gap-2">
+                {isEditing ? (
+                    <>
+                        <button onClick={handleSave} className="px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-md hover:bg-green-700 transition-colors">저장</button>
+                        <button onClick={handleCancel} className="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors">취소</button>
+                    </>
+                ) : (
+                    <button onClick={() => setIsEditing(true)} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">수정</button>
+                )}
+                <button onClick={onClose} className="p-1 rounded-full text-gray-500 hover:bg-gray-100 hover:text-gray-800">
+                    <span className="material-icons">close</span>
+                </button>
+            </div>
         </div>
 
         {/* Body */}
         <div className="flex-grow overflow-y-auto p-6 space-y-6">
             <div className="grid grid-cols-2 gap-4">
-                <div className={`flex items-center justify-center gap-2 p-2 rounded-md ${statusConfig[app.status].color.split(' ')[0]} ${statusConfig[app.status].color.split(' ')[1]}`}>
-                    <span className="material-icons">{statusConfig[app.status].icon}</span>
-                    <span className="font-semibold">{statusKorean[app.status]}</span>
+                <div className={`flex items-center justify-center gap-2 p-2 rounded-md ${statusConfig[editedApp.status].color.split(' ')[0]} ${statusConfig[editedApp.status].color.split(' ')[1]}`}>
+                    <span className="material-icons">{statusConfig[editedApp.status].icon}</span>
+                    <span className="font-semibold">{statusKorean[editedApp.status]}</span>
                 </div>
                  <div>
                    <select
-                     value={app.devStage}
+                     value={editedApp.devStage}
                      onChange={handleStageChange}
                      className="w-full h-full bg-gray-50 border border-gray-300 rounded-md px-3 py-2 text-gray-800 focus:ring-blue-500 focus:border-blue-500 transition-colors"
                    >
@@ -404,52 +472,58 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
                 </div>
             </div>
             
-             { (app.devStage === DevStage.PLANNING || app.devStage === DevStage.DEVELOPMENT) && (
+             { (editedApp.devStage === DevStage.PLANNING || editedApp.devStage === DevStage.DEVELOPMENT) && (
               <dl className="space-y-4 border-b border-gray-200 pb-6">
-                  <EditableTextItem
-                      icon="folder"
-                      label="프로젝트 경로"
-                      value={app.path}
-                      onUpdate={(value) => onUpdateApp(app.id, { path: value })}
-                      placeholder="프로젝트 경로"
-                      isCode
-                  />
-                  <EditableTextItem
-                      icon="terminal"
-                      label="실행 명령어"
-                      value={app.command}
-                      onUpdate={(value) => onUpdateApp(app.id, { command: value })}
-                      placeholder="실행 명령어"
-                      isCode
-                  />
-                  <EditableLinkItem
-                      icon="github"
-                      label="GitHub 저장소"
-                      value={app.github}
-                      onUpdate={(value) => onUpdateApp(app.id, { github: value })}
-                      placeholder="GitHub 저장소 URL"
-                  />
-                  <EditableLinkItem
-                      icon="auto_awesome"
-                      label="AI Studio 링크"
-                      value={app.aiStudioLink}
-                      onUpdate={(value) => onUpdateApp(app.id, { aiStudioLink: value })}
-                      placeholder="Google AI Studio URL"
-                  />
-                  <EditableLinkItem
-                      icon="chat"
-                      label="ChatGPT 링크"
-                      value={app.chatGptLink}
-                      onUpdate={(value) => onUpdateApp(app.id, { chatGptLink: value })}
-                      placeholder="ChatGPT 프로젝트 URL"
-                  />
+                  {isEditing ? (
+                      <>
+                          <EditableTextItem
+                              icon="folder"
+                              label="프로젝트 경로"
+                              value={editedApp.path}
+                              onUpdate={(value) => handleUpdateEditedApp('path', value)}
+                              placeholder="프로젝트 경로"
+                              isCode
+                          />
+                          <EditableTextItem
+                              icon="terminal"
+                              label="실행 명령어"
+                              value={editedApp.command}
+                              onUpdate={(value) => handleUpdateEditedApp('command', value)}
+                              placeholder="실행 명령어"
+                              isCode
+                          />
+                          <Section title="링크" icon="link">
+                            {editedApp.links.map((link, index) => (
+                                <EditableLinkItem
+                                    key={index}
+                                    link={link}
+                                    onUpdate={handleUpdateLink}
+                                    onDelete={() => handleDeleteLink(link)}
+                                />
+                            ))}
+                            <button onClick={handleAddLink} className="w-full px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600 transition-colors flex items-center justify-center gap-2">
+                                <span className="material-icons">add</span> 링크 추가
+                            </button>
+                          </Section>
+                      </>
+                  ) : (
+                      <>
+                          <DetailItem icon="folder" label="프로젝트 경로" value={editedApp.path} isCode />
+                          <DetailItem icon="terminal" label="실행 명령어" value={editedApp.command} isCode />
+                          <Section title="링크" icon="link">
+                            {editedApp.links.map((link, index) => (
+                                <DetailItem key={index} icon={link.icon || 'link'} label={link.label} value={<a href={link.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">{link.url}</a>} />
+                            ))}
+                          </Section>
+                      </>
+                  )}
                   <div>
                       <dt className="flex items-center gap-2 text-sm font-medium text-gray-700">
                           <span className="material-icons">build</span>
                           기술 스택
                       </dt>
                       <dd className="mt-2 flex flex-wrap gap-2">
-                          {app.techStack.map((tech) => (
+                          {editedApp.techStack.map((tech) => (
                               <span key={tech} className="px-3 py-1 text-sm font-semibold bg-gray-200 text-gray-700 rounded-full">{tech}</span>
                           ))}
                       </dd>
@@ -458,12 +532,14 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
             )}
 
             {/* Stage-specific content */}
-            <StageSpecificContent app={app} onUpdateApp={onUpdateApp} />
+            <StageSpecificContent app={editedApp} onUpdateApp={onUpdateApp} />
         </div>
 
         {/* Footer */}
         <div className="p-4 bg-gray-100 border-t border-gray-200 flex justify-end">
-            <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">닫기</button>
+            {!isEditing && (
+                <button type="button" onClick={onClose} className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors">닫기</button>
+            )}
         </div>
       </div>
     </div>
