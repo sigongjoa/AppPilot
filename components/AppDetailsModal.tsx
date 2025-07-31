@@ -376,7 +376,7 @@ export const AppDetailsModal: React.FC<AppDetailsModalProps> = ({ isOpen, onClos
 
   useEffect(() => {
     if (app) {
-      setEditedApp(app);
+      setEditedApp({ ...app, links: app.links || [] });
     }
   }, [app]);
 
